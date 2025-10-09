@@ -2,22 +2,40 @@ import AWSLambdaEvents
 import AWSLambdaRuntime
 import CloudSDK
 import Valkey
+import ServiceLifecycle
 
 @main
 struct VKounters: LambdaHandler {
     typealias Event = FunctionURLRequest
     typealias Output = FunctionURLResponse
 
-//    @MainActor static var client: ValkeyClient?
-
-    static let instance = VKounters()
+    let valkey: ValkeyClient
 
     static func main() async throws {
-        let lambdaRuntime = LambdaRuntime { event, context in
-            try await instance.handle(event, context: context)
+        let valkeyClient = try ValkeyClient(
+            .hostname(Cloud.Resource.VkountersValkey.hostname),
+            configuration: .init(
+                tls: .enable(.clientDefault, tlsServerName: Cloud.Resource.VkountersValkey.hostname),
+            ),
+            logger: .init(label: "ValkeyClient")
+        )
+
+        let lambdaHandler = VKounters(valkey: valkeyClient)
+
+        // https://github.com/swift-server/swift-aws-lambda-runtime/pull/581
+//        let lambdaRuntime = LambdaRuntime(lambdaHandler: lambdaHandler)
+        let lambdaRuntime = LambdaRuntime { (event: Event, context: LambdaContext) in
+            try await lambdaHandler.handle(event, context: context)
         }
 
-        try await lambdaRuntime.run()
+        let services: [Service] = [valkeyClient, lambdaRuntime]
+        let serviceGroup = ServiceGroup(
+            services: services,
+            gracefulShutdownSignals: [.sigint],
+            cancellationSignals: [.sigterm],
+            logger: .init(label: "ServiceGroup")
+        )
+        try await serviceGroup.run()
     }
 
     func handle(
@@ -34,13 +52,7 @@ struct VKounters: LambdaHandler {
             return .init(statusCode: .badRequest, body: String(describing: error))
         }
 
-//        let client = try await createClientIfNeeded(context: context)
-
-        let (clicks, os, browser) = try await ValkeyConnection.withConnection(
-            address: .hostname(Cloud.Resource.VkountersValkey.hostname),
-            configuration: .init(tls: ValkeyConnectionConfiguration.TLS.enable(.init(configuration: .clientDefault), tlsServerName: nil)),
-            logger: context.logger
-        ) { connection in
+        let (clicks, os, browser) = try await valkey.withConnection { connection in
             context.logger.info("Connected!")
             return await connection.execute(
                 INCR("clicks"),
@@ -57,23 +69,6 @@ struct VKounters: LambdaHandler {
             osDistribution: [:]
         ))
     }
-
-//    @MainActor
-//    private func createClientIfNeeded(context: LambdaContext) throws -> ValkeyClient {
-//        if let client = Self.client {
-//            return client
-//        }
-//
-//        let client = try ValkeyClient(
-//            .hostname(Cloud.Resource.VkountersValkey.hostname),
-//            configuration: .init(
-//                tls: .enable(.clientDefault, tlsServerName: Cloud.Resource.VkountersValkey.hostname),
-//            ),
-//            logger: context.logger
-//        )
-//        Self.client = client
-//        return client
-//    }
 }
 
 struct Request: Decodable {
@@ -86,3 +81,5 @@ struct Response: Encodable {
     let browserDistribution: [String: Int]
     let osDistribution: [String: Int]
 }
+
+
