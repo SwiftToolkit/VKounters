@@ -1,0 +1,40 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:VKounters}",
+            "name": "Debug VKounters",
+            "program": "${workspaceFolder:VKounters}/.build/debug/VKounters",
+            "preLaunchTask": "swift: Build Debug VKounters"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:VKounters}",
+            "name": "Release VKounters",
+            "program": "${workspaceFolder:VKounters}/.build/release/VKounters",
+            "preLaunchTask": "swift: Build Release VKounters"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:VKounters}",
+            "name": "Debug Infra",
+            "program": "${workspaceFolder:VKounters}/.build/debug/Infra",
+            "preLaunchTask": "swift: Build Debug Infra"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:VKounters}",
+            "name": "Release Infra",
+            "program": "${workspaceFolder:VKounters}/.build/release/Infra",
+            "preLaunchTask": "swift: Build Release Infra"
+        }
+    ]
+}
