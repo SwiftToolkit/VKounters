@@ -1,5 +1,5 @@
 {
-  "originHash" : "cd560189346932e6c69f5b1b0e59affdd50e4cbfcb7a2da3df6ec8c1fe8a9301",
+  "originHash" : "908f78865817d234286025e55b68e0ddc23b8d92a993c6064d2df82d9a5d1c98",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/swift-aws-lambda-runtime.git",
       "state" : {
-        "revision" : "8cfd36a30d5afa9e4679d1f616c26b58c19821b8",
-        "version" : "2.0.0"
+        "revision" : "e3b74f3a0e45aa000548a1b9deecba00e9321b06",
+        "version" : "2.3.0"
       }
     },
     {
@@ -132,8 +132,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-cloud/swift-cloud.git",
       "state" : {
-        "revision" : "6e3b5dff9028e7fbe65d9ba8a41442fc805590d6",
-        "version" : "0.40.0"
+        "revision" : "bc7d8593fc8b2424876700ddb84ed00f98b46a78",
+        "version" : "0.41.0"
       }
     },
     {
@@ -285,8 +285,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/valkey-io/valkey-swift.git",
       "state" : {
-        "revision" : "4df9a1db37d932366fee3de5e413514e9e2fda33",
-        "version" : "0.3.0"
+        "revision" : "f065fc2edcd7bb952d996f9ab06d080081fd4e01",
+        "version" : "0.4.0"
       }
     }
   ],

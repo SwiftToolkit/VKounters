@@ -9,10 +9,10 @@ let package = Package(
         .macOS(.v26)
     ],
     dependencies: [
-        .package(url: "https://github.com/swift-server/swift-aws-lambda-runtime.git", from: "2.0.0"),
+        .package(url: "https://github.com/swift-server/swift-aws-lambda-runtime.git", from: "2.3.0"),
         .package(url: "https://github.com/swift-server/swift-aws-lambda-events.git", from: "1.2.1"),
-        .package(url: "https://github.com/swift-cloud/swift-cloud.git", from: "0.40.0"),
-        .package(url: "https://github.com/valkey-io/valkey-swift.git", from: "0.3.0")
+        .package(url: "https://github.com/swift-cloud/swift-cloud.git", from: "0.41.0"),
+        .package(url: "https://github.com/valkey-io/valkey-swift.git", from: "0.4.0")
     ],
     targets: [
         .executableTarget(
