@@ -66,13 +66,11 @@ struct VKounters {
     }
 
     private func addStats(_ stats: StatsRequest, context: LambdaContext) async throws -> StatsResponse {
-        let (totalCount, _, _) = try await valkey.withConnection { connection in
-            return await connection.execute(
-                INCR("stats:total"),
-                INCR(ValkeyKey("stats:os:\(stats.os)")),
-                INCR(ValkeyKey("stats:browser:\(stats.browser)"))
-            )
-        }
+        let (totalCount, _, _) = await valkey.execute(
+            INCR("stats:total"),
+            INCR(ValkeyKey("stats:os:\(stats.os)")),
+            INCR(ValkeyKey("stats:browser:\(stats.browser)"))
+        )
 
         async let osDistribution = try await getValues(matching: "stats:os")
         async let browserDistribution = try await getValues(matching: "stats:browser")
