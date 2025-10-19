@@ -20,15 +20,22 @@ struct VKounters {
     static func runLocal() async throws {
         let valkeyClient = ValkeyClient(
             .hostname("localhost"),
-            configuration: .init(
-                tls: .disable,
-            ),
+            configuration: .init(tls: .disable),
             logger: .init(label: "ValkeyClient")
         )
+        async let _ = valkeyClient.run()
 
-        let vKounters = VKounters(valkey: valkeyClient)
-        let count = try await vKounters.incrementCounter()
-        print("Counter now is \(count)")
+        try await valkeyClient.set(
+            "pokemon",
+            value: ["Pikachu", "Charmander", "Bulbasaur"].randomElement()!
+        )
+
+        if let pokemon = try await valkeyClient.get("pokemon") {
+            print("Pokemon is now \(String(buffer: pokemon))")
+        }
+
+        let count = try await valkeyClient.incr("likes")
+        print("Likes counter is now \(count)")
     }
 
     static func runLambda() async throws {
