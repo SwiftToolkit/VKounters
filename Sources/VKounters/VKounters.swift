@@ -61,8 +61,14 @@ struct VKounters {
         try await serviceGroup.run()
     }
 
-    private func incrementCounter() async throws -> Int {
-        try await valkey.incr("counter")
+    private func getCounter(increment: Bool = false) async throws -> Int {
+        if increment {
+            try await valkey.incr("counter")
+        } else {
+            try await valkey.get("counter")
+                .map { String(buffer: $0) }
+                .flatMap { Int($0) } ?? 0
+        }
     }
 
     private func addStats(_ stats: StatsRequest, context: LambdaContext) async throws -> StatsResponse {
@@ -72,11 +78,16 @@ struct VKounters {
             INCR(ValkeyKey("stats:browser:\(stats.browser)"))
         )
 
+        let totalInt = (try? totalCount.get()) ?? 0
+        return try await getStats(totalCount: totalInt)
+    }
+
+    private func getStats(totalCount: Int) async throws -> StatsResponse {
         async let osDistribution = try await getValues(matching: "stats:os")
         async let browserDistribution = try await getValues(matching: "stats:browser")
 
         return try await StatsResponse(
-            totalCount: (try? totalCount.get()) ?? 0,
+            totalCount: totalCount,
             browserDistribution: browserDistribution,
             osDistribution: osDistribution
         )
@@ -139,8 +150,17 @@ extension VKounters: LambdaHandler {
             try await reset(context: context)
             return .init(statusCode: .ok)
         case .counter:
-            let count = try await incrementCounter()
+            let count = try await getCounter(increment: true)
             return .encoding(CounterResponse(count: count))
+        case .getCounter:
+            let count = try await getCounter()
+            return .encoding(CounterResponse(count: count))
+        case .getStats:
+            let totalCount = try await valkey.get("stats:total")
+                .map { String(buffer: $0) }
+                .flatMap { Int($0) } ?? 0
+            let stats = try await getStats(totalCount: totalCount)
+            return .encoding(stats)
         case .stats:
             do {
                 let stats = try event.decodeBody(StatsRequest.self)

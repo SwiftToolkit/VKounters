@@ -5,6 +5,8 @@ enum Path: String {
     case reset
     case counter
     case stats
+    case getCounter
+    case getStats
 }
 
 extension Path {
@@ -19,7 +21,10 @@ extension Path {
 
     var method: String {
         switch self {
-        case .reset, .counter:
+        case .reset,
+             .counter,
+             .getCounter,
+             .getStats:
             "GET"
         case .stats:
             "POST"
